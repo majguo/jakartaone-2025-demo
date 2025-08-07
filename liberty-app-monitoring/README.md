@@ -132,8 +132,8 @@ az containerapp env create \
 Clone the repository and navigate to the `liberty-app-monitoring` directory:
 
 ```bash
-git clone https://github.com/majguo/java-on-azure-samples.git
-cd java-on-azure-samples/liberty-app-monitoring
+git clone https://github.com/majguo/jakartaone-2025-demo.git
+cd jakartaone-2025-demo/liberty-app-monitoring
 ```
 
 ## Building and Deploying the Application
@@ -176,7 +176,7 @@ az containerapp create \
 ```
 
 > [!NOTE]
-> HTTP Port `4318` of OTEL Collector is specified for the internal ingress, so the Liberty application can communicate with the collector through the same virtual network. The gRPC port `4317` can't be used here because Azure Container Apps just supports HTTP/TCP port for ingress. If you want to use gRPC, you can deploy the OpenTelemetry Collector as a sidecar container of the Liberty application in the same Azure Container Apps, see the later section.
+> HTTP Port `4318` of OTEL Collector is specified for the internal ingress, so the Liberty application can communicate with the collector through the same virtual network. The gRPC port `4317` can't be used here because Azure Container Apps just supports HTTP/TCP port for ingress. If you want to use gRPC, you can deploy the OpenTelemetry Collector as a sidecar container of the Liberty application in the same Azure Container Apps.
 
 Wait for a while until the collector is deployed, started and running.
 
