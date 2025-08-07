@@ -38,22 +38,22 @@ public class CafeResource {
     }
 
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     public List<Coffee> getAllCoffees() {
         this.getAllCoffeesCounter.add(1);
         return this.cafeRepository.getAllCoffees();
     }
 
     @POST
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })	
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })	
     public Coffee createCoffee(Coffee coffee) {
         return this.cafeRepository.persistCoffee(coffee);
     }
 
     @GET
     @Path("{id}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     public Coffee getCoffeeById(@PathParam("id") Long coffeeId) {
         return this.cafeRepository.findCoffeeById(coffeeId);
     }

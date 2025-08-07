@@ -3,7 +3,7 @@ package cafe.web.view;
 import cafe.model.entity.Coffee;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,20 +14,15 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
-
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 
 @Named
-@SessionScoped
-public class Cafe implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@RequestScoped
+public class Cafe {
 
     private String baseUri;
-    private transient Client client;
+    private Client client;
 
     @NotNull
     @NotEmpty
@@ -56,10 +51,6 @@ public class Cafe implements Serializable {
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
                 .getRequest();
         baseUri = "http://localhost:9080" + request.getContextPath() + "/rest/coffees";
-        initClient();
-    }
-
-    private void initClient() {
         client = ClientBuilder.newBuilder().build();
     }
 
@@ -78,11 +69,5 @@ public class Cafe implements Serializable {
     public void removeCoffee(String coffeeId) throws IOException {
         client.target(baseUri).path(coffeeId).request().delete();
         FacesContext.getCurrentInstance().getExternalContext().redirect("");
-    }
-
-    // This method is called after deserialization to initialize transient fields.
-    private Object readResolve() {
-        initClient();
-        return this;
     }
 }

@@ -4,14 +4,11 @@
     <featureManager>
         <feature>cdi-4.0</feature>
         <feature>jsonb-3.0</feature>
-        <feature>xmlBinding-4.0</feature>
         <feature>faces-4.0</feature>
         <feature>restfulWS-3.1</feature>
         <feature>enterpriseBeansLite-4.0</feature>
         <feature>persistence-3.1</feature>
-        <feature>sessionDatabase-1.0</feature>
         <feature>mpTelemetry-2.0</feature>
-        <feature>mpHealth-4.0</feature>
     </featureManager>
 
     <!-- Define http & https endpoints -->
@@ -27,10 +24,6 @@
                     location="${server.config.dir}/apps/javaee-cafe-monitoring.war">
         <classloader apiTypeVisibility="+third-party"/>
     </webApplication>
-
-    <!-- https://openliberty.io/docs/latest/reference/config/httpSessionDatabase.html -->
-    <httpSessionDatabase id="SessionDB" dataSourceRef="JavaEECafeDB" writeContents="GET_AND_SET_ATTRIBUTES" />
-    <httpSession storageRef="SessionDB" />
 
     <dataSource id="JavaEECafeDB" jndiName="jdbc/JavaEECafeDB">
         <jdbcDriver libraryRef="driver-library" />
