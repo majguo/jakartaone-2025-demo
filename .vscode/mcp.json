@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "azure-app-insights": {
+            "type": "stdio",
+            "command": "uv",
+            "args": [
+                "--directory",
+                "${workspaceFolder}/mcp-server",
+                "run",
+                "azure_app_insights.py"
+            ]
+        }
+    }
+}

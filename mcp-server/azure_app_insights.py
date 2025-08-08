@@ -73,17 +73,19 @@ def query_app_insights(app_id, token, query_body):
         logger.error(f"Response: {e.response.text}")
         sys.exit(1)
 
-def display_results(response_data):
-    """Process and display the results"""
+def format_results(response_data):
+    """Process and return the results as a JSON array"""
     tables = response_data.get("tables", [])
     
     if not tables:
         logger.info("No results returned")
-        return
+        return []
+    
+    all_results = []
     
     for i, table in enumerate(tables):
         table_name = table.get("name", f"Table {i}")
-        logger.info(f"Table Name: {table_name}")
+        logger.info(f"Processing table: {table_name}")
         
         # Get column names
         columns = [col["name"] for col in table.get("columns", [])]
@@ -92,19 +94,23 @@ def display_results(response_data):
         rows = table.get("rows", [])
         
         if rows:
-            # Print column headers
-            logger.info("\t".join(columns))
-            logger.info("-" * 53)
-            
-            # Print each row
+            # Convert each row to a dictionary with column names as keys
             for row in rows:
-                logger.info("\t".join(str(cell) for cell in row))
+                row_dict = {}
+                for j, value in enumerate(row):
+                    if j < len(columns):
+                        row_dict[columns[j]] = value
+                all_results.append(row_dict)
+    
+    return all_results
 
-def main():
-    # Get resource group name from environment or user input
-    resource_group_name = os.environ.get("RESOURCE_GROUP_NAME")
-    if not resource_group_name:
-        resource_group_name = input("Enter resource group name: ")
+@mcp.tool()
+async def get_requests(resource_group_name: str):
+    """Get the last 10 requests from the Azure Application Insights
+
+    Args:
+        resource_group_name: The name of the Azure resource group where the Azure Application Insights resource is located.
+    """
     
     # Get token
     token = get_access_token()
@@ -119,9 +125,16 @@ def main():
     
     # Query Application Insights
     response_data = query_app_insights(app_insights_app_id, token, query_body)
+
+    # Format the results
+    results = format_results(response_data)
     
-    # Display the results
-    display_results(response_data)
+    # Log the JSON results
+    logger.info(f"Query results: {json.dumps(results, indent=2)}")
+    
+    return results
 
 if __name__ == "__main__":
-    main()
+    # Initialize and run the server
+    logger.info("Starting azure-app-insights MCP server")
+    mcp.run(transport='stdio')
