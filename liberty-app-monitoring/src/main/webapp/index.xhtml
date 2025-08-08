@@ -41,6 +41,16 @@
                     <h:outputText value="#{coffee.price}" />
                 </h:column>
                 <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{messages.soldCount}" />
+                    </f:facet>
+                    <h:outputText value="#{coffee.soldCount}" />
+                </h:column>
+                <h:column>
+                    <h:commandLink value="#{messages.buy}"
+                        action="#{cafe.buyCoffee(coffee.id)}" immediate="true" />
+                </h:column>
+                <h:column>
                     <h:commandLink value="#{messages.delete}"
                         action="#{cafe.removeCoffee(coffee.id)}" immediate="true" />
                 </h:column>

@@ -1,6 +1,7 @@
 package cafe.web.view;
 
 import cafe.model.entity.Coffee;
+import cafe.model.dto.CoffeeWithSoldCount;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
@@ -54,9 +55,9 @@ public class Cafe {
         client = ClientBuilder.newBuilder().build();
     }
 
-    public List<Coffee> getCoffeeList() {
+    public List<CoffeeWithSoldCount> getCoffeeList() {
         return client.target(baseUri).path("/").request(MediaType.APPLICATION_JSON)
-                .get(new GenericType<List<Coffee>>() {
+                .get(new GenericType<List<CoffeeWithSoldCount>>() {
                 });
     }
 
@@ -68,6 +69,11 @@ public class Cafe {
 
     public void removeCoffee(String coffeeId) throws IOException {
         client.target(baseUri).path(coffeeId).request().delete();
+        FacesContext.getCurrentInstance().getExternalContext().redirect("");
+    }
+
+    public void buyCoffee(String coffeeId) throws IOException {
+        client.target(baseUri).path(coffeeId).path("buy").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
         FacesContext.getCurrentInstance().getExternalContext().redirect("");
     }
 }
