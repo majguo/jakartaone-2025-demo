@@ -105,11 +105,17 @@ def format_results(response_data):
     return all_results
 
 @mcp.tool()
-async def get_requests(resource_group_name: str):
-    """Get the last 10 requests from the Azure Application Insights
+async def get_requests(resource_group_name: str, query: str):
+    """Get response time of requests from the Azure Application Insights
 
     Args:
-        resource_group_name: The name of the Azure resource group where the Azure Application Insights resource is located.
+        resource_group_name: The name of the Azure resource group where the Azure Application Insights 
+            resource is located.
+        query: The query string to send to Application Insights. It's a Kusto Query Language (KQL) query 
+            that queries requests table and should only return columns timestamp, name and duration. 
+            You should infer the structure of the query from the context. 
+            A simple example to query the last 10 requests would be "requests | take 10 | project timestamp, name, duration".
+            Use it as default query if none is provided or you can't infer the query finally.
     """
     
     # Get token
@@ -117,7 +123,7 @@ async def get_requests(resource_group_name: str):
     
     # Create query body
     query_body = {
-        "query": "requests | take 10 | project timestamp, name, duration"
+        "query": query
     }
     
     # Get Application Insights app ID
