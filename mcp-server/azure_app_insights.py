@@ -1,9 +1,21 @@
-#!/usr/bin/env python3
+import httpx
+import logging
+from mcp.server.fastmcp import FastMCP
+
 import os
 import json
 import subprocess
-import requests
 import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("azure-app-insights-mcp")
+
+# Initialize FastMCP server
+mcp = FastMCP("azure-app-insights")
 
 def get_access_token():
     """Get Azure access token for Application Insights"""
@@ -16,11 +28,11 @@ def get_access_token():
         token_data = json.loads(result.stdout)
         return token_data["accessToken"]
     except subprocess.CalledProcessError as e:
-        print(f"Error getting access token: {e}")
-        print(f"Error output: {e.stderr}")
+        logger.error(f"Error getting access token: {e}")
+        logger.error(f"Error output: {e.stderr}")
         sys.exit(1)
     except json.JSONDecodeError as e:
-        print(f"Error parsing token response: {e}")
+        logger.error(f"Error parsing token response: {e}")
         sys.exit(1)
 
 def get_app_insights_id(resource_group_name):
@@ -34,8 +46,8 @@ def get_app_insights_id(resource_group_name):
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"Error getting Application Insights app ID: {e}")
-        print(f"Error output: {e.stderr}")
+        logger.error(f"Error getting Application Insights app ID: {e}")
+        logger.error(f"Error output: {e.stderr}")
         sys.exit(1)
 
 def query_app_insights(app_id, token, query_body):
@@ -49,13 +61,16 @@ def query_app_insights(app_id, token, query_body):
     params = {"timespan": "P1D"}  # Last 1 day of data
     
     try:
-        response = requests.post(url, headers=headers, params=params, json=query_body)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error querying Application Insights: {e}")
-        if hasattr(e, 'response') and e.response:
-            print(f"Response: {e.response.text}")
+        with httpx.Client() as client:
+            response = client.post(url, headers=headers, params=params, json=query_body)
+            response.raise_for_status()
+            return response.json()
+    except httpx.RequestError as e:
+        logger.error(f"Error querying Application Insights: {e}")
+        sys.exit(1)
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error querying Application Insights: {e}")
+        logger.error(f"Response: {e.response.text}")
         sys.exit(1)
 
 def display_results(response_data):
@@ -63,12 +78,12 @@ def display_results(response_data):
     tables = response_data.get("tables", [])
     
     if not tables:
-        print("No results returned")
+        logger.info("No results returned")
         return
     
     for i, table in enumerate(tables):
         table_name = table.get("name", f"Table {i}")
-        print(f"Table Name: {table_name}")
+        logger.info(f"Table Name: {table_name}")
         
         # Get column names
         columns = [col["name"] for col in table.get("columns", [])]
@@ -78,14 +93,12 @@ def display_results(response_data):
         
         if rows:
             # Print column headers
-            print("\t".join(columns))
-            print("-" * 53)
+            logger.info("\t".join(columns))
+            logger.info("-" * 53)
             
             # Print each row
             for row in rows:
-                print("\t".join(str(cell) for cell in row))
-        
-        print()
+                logger.info("\t".join(str(cell) for cell in row))
 
 def main():
     # Get resource group name from environment or user input
