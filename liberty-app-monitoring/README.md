@@ -129,10 +129,15 @@ az containerapp env create \
 
 ## Preparing the Application
 
-Clone the repository and navigate to the `liberty-app-monitoring` directory:
+Clone the repository if you haven't done so:
 
 ```bash
 git clone https://github.com/majguo/jakartaone-2025-demo.git
+```
+
+Then navigate to the `liberty-app-monitoring` directory:
+
+```bash
 cd jakartaone-2025-demo/liberty-app-monitoring
 ```
 
